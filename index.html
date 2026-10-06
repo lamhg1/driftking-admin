@@ -302,9 +302,27 @@ function render(){
 
 function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+// Cập nhật ngay trên bộ nhớ để giao diện phản hồi tức thì (không chờ server)
+function applyLocal(action, key, extra){
+  const i = DATA.findIndex(l=>l.license_key===key);
+  if(i<0) return;
+  if(action==="delete"){ DATA.splice(i,1); return; }
+  const l = DATA[i];
+  if(action==="set_status"){ l.status = extra.status; }
+  else if(action==="extend"){
+    const base = (l.expire_at && new Date(l.expire_at)>new Date()) ? new Date(l.expire_at) : new Date();
+    l.expire_at = new Date(base.getTime()+extra.days*86400000).toISOString();
+    l.status = "active";
+  }
+  else if(action==="reset"){ l.hwid=null; l.activated_at=null; l.expire_at=null; }
+}
+
 async function act(action, key, extra, okMsg){
-  try{ await call(action, { key, ...(extra||{}) }); toast(okMsg); await loadAll(); }
-  catch(e){ toast("Lỗi: "+e.message, true); }
+  applyLocal(action, key, extra);   // đổi giao diện ngay
+  render();
+  toast(okMsg);
+  try{ await call(action, { key, ...(extra||{}) }); }
+  catch(e){ toast("Lỗi: "+e.message+" — đang đồng bộ lại", true); await loadAll(); }
 }
 async function resetKey(key){
   if(!confirm("Gỡ key khỏi máy hiện tại? Khách sẽ kích hoạt lại được trên máy mới.\n"+key)) return;
