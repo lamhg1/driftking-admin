@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DRIFTK1NG - Quản lý License</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#181b22; --panel2:#1f232c; --border:#2a2f3a;
+    --txt:#e7eaf0; --muted:#8b93a7; --accent:#3ddc84; --accent2:#2563eb;
+    --danger:#ef4444; --warn:#f59e0b; --ok:#22c55e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+  header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 22px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:10}
+  header h1{font-size:17px;margin:0;font-weight:600}
+  header .dot{width:10px;height:10px;border-radius:50%;background:#555}
+  header .dot.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+  header .spacer{flex:1}
+  .wrap{max-width:1300px;margin:0 auto;padding:22px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:18px}
+  .card h2{font-size:14px;margin:0 0 14px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+  input,select{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:7px;padding:9px 11px;color:var(--txt);font-size:13px;outline:none}
+  input:focus,select:focus{border-color:var(--accent2)}
+  .row{display:grid;gap:12px}
+  .row.login{grid-template-columns:1fr auto auto;max-width:560px}
+  .row.add{grid-template-columns:2fr 1.3fr 1.3fr 1fr 1fr auto}
+  button{cursor:pointer;border:none;border-radius:7px;padding:9px 16px;font-size:13px;font-weight:600;color:#fff;background:var(--accent2);transition:.15s;white-space:nowrap}
+  button:hover{filter:brightness(1.12)}
+  button.ok{background:var(--accent);color:#06240f}
+  button.sm{padding:6px 10px;font-size:12px}
+  button.danger{background:var(--danger)}
+  button.warn{background:var(--warn);color:#2b1a00}
+  button.ghost{background:var(--panel2);border:1px solid var(--border)}
+  table{width:100%;border-collapse:collapse;margin-top:4px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px}
+  th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+  td.hwid{font-family:Consolas,monospace;font-size:12px;color:#a9b2c6}
+  tr:hover td{background:#1c2029}
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+  .b-active{background:rgba(34,197,94,.15);color:#4ade80}
+  .b-blocked{background:rgba(239,68,68,.15);color:#f87171}
+  .b-expired{background:rgba(245,158,11,.15);color:#fbbf24}
+  .perm{font-size:12px;color:#c7cedb}
+  .actions{display:flex;gap:6px;flex-wrap:wrap}
+  .toast{position:fixed;bottom:22px;right:22px;background:var(--panel2);border:1px solid var(--border);border-left:4px solid var(--accent);padding:13px 18px;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;transform:translateY(10px);transition:.25s;max-width:360px}
+  .toast.show{opacity:1;transform:translateY(0)}
+  .toast.err{border-left-color:var(--danger)}
+  .stats{display:flex;gap:22px;flex-wrap:wrap}
+  .stat{background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:14px 20px;min-width:120px}
+  .stat .n{font-size:26px;font-weight:700}
+  .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+  .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  .toolbar input{max-width:260px}
+  .muted{color:var(--muted)}
+  .empty{text-align:center;padding:40px;color:var(--muted)}
+  .exp-soon{color:#fbbf24}
+  .exp-over{color:#f87171}
+  .hint{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
+  @media(max-width:900px){.row.login,.row.add{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <span class="dot" id="statusDot"></span>
+  <h1>DRIFTK1NG — Quản lý License</h1>
+  <span class="muted" id="statusTxt" style="font-size:12px">Chưa đăng nhập</span>
+  <span class="spacer"></span>
+  <button class="ghost sm" id="logoutBtn" style="display:none" onclick="logout()">Đăng xuất</button>
+</header>
+
+<div class="wrap">
+
+  <!-- Đăng nhập -->
+  <div class="card" id="loginCard">
+    <h2>Đăng nhập Admin</h2>
+    <div class="row login">
+      <div>
+        <label>Mật khẩu admin</label>
+        <input id="pass" type="password" placeholder="Mật khẩu riêng của bạn" onkeydown="if(event.key==='Enter')login()">
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin:0 0 9px">
+          <input type="checkbox" id="remember" style="width:auto" checked> <span>Nhớ</span>
+        </label>
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <button class="ok" onclick="login()">Đăng nhập</button>
+      </div>
+    </div>
+    <div class="hint">Mật khẩu là chuỗi bạn đã đặt trong Supabase (secret <b>ADMIN_PASSWORD</b>). service_role được giữ an toàn trên server, không nằm trong file này.</div>
+  </div>
+
+  <!-- Thống kê -->
+  <div class="card" id="statsCard" style="display:none">
+    <div class="stats">
+      <div class="stat"><div class="n" id="sTotal">0</div><div class="l">Tổng license</div></div>
+      <div class="stat"><div class="n" id="sActive" style="color:#4ade80">0</div><div class="l">Đang hoạt động</div></div>
+      <div class="stat"><div class="n" id="sBlocked" style="color:#f87171">0</div><div class="l">Bị chặn</div></div>
+      <div class="stat"><div class="n" id="sExpired" style="color:#fbbf24">0</div><div class="l">Hết hạn</div></div>
+      <div class="stat"><div class="n" id="sSessions" style="color:#60a5fa">0</div><div class="l">Phiên online</div></div>
+    </div>
+  </div>
+
+  <!-- Thêm license -->
+  <div class="card" id="addCard" style="display:none">
+    <h2>Thêm license mới</h2>
+    <div class="row add">
+      <div><label>HWID (32 ký tự)</label><input id="nHwid" placeholder="HWID khách gửi"></div>
+      <div><label>Tên khách</label><input id="nName" placeholder="Tên / ghi chú"></div>
+      <div><label>License Key</label><input id="nKey" placeholder="DFK-xxxx (tùy chọn)"></div>
+      <div><label>Quyền</label><select id="nPerm"><option value="basic">basic</option><option value="pro" selected>pro</option><option value="admin">admin</option></select></div>
+      <div><label>Số ngày</label><input id="nDays" type="number" value="30"></div>
+      <div style="display:flex;align-items:flex-end"><button class="ok" onclick="addLicense()">Thêm</button></div>
+    </div>
+  </div>
+
+  <!-- Danh sách -->
+  <div class="card" id="listCard" style="display:none">
+    <div class="toolbar">
+      <h2 style="margin:0">Danh sách license</h2>
+      <input id="search" placeholder="Tìm HWID / tên / key..." oninput="render()">
+      <select id="filterStatus" onchange="render()" style="max-width:160px">
+        <option value="">Tất cả trạng thái</option>
+        <option value="active">Hoạt động</option>
+        <option value="blocked">Bị chặn</option>
+        <option value="expired">Hết hạn</option>
+      </select>
+      <button class="ghost sm" onclick="loadAll()">⟳ Làm mới</button>
+    </div>
+    <div id="tableBox"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== CẤU HÌNH (anon key công khai - an toàn khi để trong file) =====
+const SB_URL  = "https://goodthgpljojozxrffla.supabase.co";
+const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdvb2R0aGdwbGpvam96eHJmZmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMDA2NzEsImV4cCI6MjEwNjc3NjY3MX0.4Mpn4CJuP0o2qNvYYSbmc0qPXShTu-B8RbTSVopAEZ0";
+const FN = SB_URL + "/functions/v1/admin";
+// ====================================================================
+
+let PASS = "";
+let DATA = [];
+let SESS = [];
+
+// khôi phục mật khẩu đã nhớ
+(function init(){
+  try{
+    const p = localStorage.getItem("dfk_admin_pass");
+    if(p){ document.getElementById("pass").value = p; PASS = p; login(true); }
+  }catch(e){}
+})();
+
+function toast(msg, isErr){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (isErr?" err":"");
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>{ t.className = "toast"+(isErr?" err":""); }, 3200);
+}
+
+async function call(action, extra){
+  const r = await fetch(FN, {
+    method:"POST",
+    headers:{ "Authorization":"Bearer "+ANON_KEY, "Content-Type":"application/json" },
+    body: JSON.stringify({ pass:PASS, action, ...(extra||{}) })
+  });
+  const data = await r.json().catch(()=>({ok:false,error:"HTTP "+r.status}));
+  if(!r.ok || !data.ok){
+    const map = { wrong_password:"Sai mật khẩu", server_not_configured:"Server chưa đặt ADMIN_PASSWORD", duplicate:"HWID hoặc key đã tồn tại" };
+    throw new Error(map[data.error] || data.error || ("HTTP "+r.status));
+  }
+  return data;
+}
+
+async function login(silent){
+  PASS = document.getElementById("pass").value;
+  if(!PASS){ if(!silent) toast("Nhập mật khẩu", true); return; }
+  try{
+    await loadAll();
+    if(document.getElementById("remember").checked) localStorage.setItem("dfk_admin_pass", PASS);
+    document.getElementById("loginCard").style.display="none";
+    document.getElementById("statsCard").style.display="block";
+    document.getElementById("addCard").style.display="block";
+    document.getElementById("listCard").style.display="block";
+    document.getElementById("logoutBtn").style.display="inline-block";
+    setStatus(true);
+  }catch(e){
+    setStatus(false);
+    if(!silent) toast(e.message, true);
+  }
+}
+
+function logout(){
+  localStorage.removeItem("dfk_admin_pass");
+  PASS=""; DATA=[]; SESS=[];
+  document.getElementById("pass").value="";
+  document.getElementById("loginCard").style.display="block";
+  document.getElementById("statsCard").style.display="none";
+  document.getElementById("addCard").style.display="none";
+  document.getElementById("listCard").style.display="none";
+  document.getElementById("logoutBtn").style.display="none";
+  setStatus(false, "Đã đăng xuất");
+}
+
+async function loadAll(){
+  const d = await call("list");
+  DATA = d.licenses || [];
+  SESS = d.sessions || [];
+  render();
+  toast("Đã tải "+DATA.length+" license");
+}
+
+function setStatus(ok, txt){
+  document.getElementById("statusDot").className = "dot"+(ok?" on":"");
+  document.getElementById("statusTxt").textContent = txt || (ok ? "Đã đăng nhập" : "Chưa đăng nhập");
+}
+
+function isExpired(l){
+  if(l.status==="expired") return true;
+  if(l.expire_at && new Date(l.expire_at) < new Date()) return true;
+  return false;
+}
+function effStatus(l){
+  if(l.status==="blocked") return "blocked";
+  if(isExpired(l)) return "expired";
+  return "active";
+}
+
+function render(){
+  const q = document.getElementById("search").value.toLowerCase();
+  const fs = document.getElementById("filterStatus").value;
+  const onlineHwids = new Set(SESS.filter(s=> (new Date()-new Date(s.last_heartbeat))<90000 ).map(s=>s.hwid));
+
+  let rows = DATA.filter(l=>{
+    const hay = (l.hwid+" "+(l.customer_name||"")+" "+(l.license_key||"")).toLowerCase();
+    if(q && !hay.includes(q)) return false;
+    if(fs && effStatus(l)!==fs) return false;
+    return true;
+  });
+
+  document.getElementById("sTotal").textContent = DATA.length;
+  document.getElementById("sActive").textContent = DATA.filter(l=>effStatus(l)==="active").length;
+  document.getElementById("sBlocked").textContent = DATA.filter(l=>effStatus(l)==="blocked").length;
+  document.getElementById("sExpired").textContent = DATA.filter(l=>effStatus(l)==="expired").length;
+  document.getElementById("sSessions").textContent = onlineHwids.size;
+
+  if(rows.length===0){ document.getElementById("tableBox").innerHTML = '<div class="empty">Không có license nào</div>'; return; }
+
+  let html = '<table><thead><tr><th>HWID</th><th>Khách</th><th>Key</th><th>Quyền</th><th>Trạng thái</th><th>Hết hạn</th><th>Online</th><th>Thao tác</th></tr></thead><tbody>';
+  for(const l of rows){
+    const st = effStatus(l);
+    const badge = st==="active"?'<span class="badge b-active">Hoạt động</span>'
+               : st==="blocked"?'<span class="badge b-blocked">Bị chặn</span>'
+               : '<span class="badge b-expired">Hết hạn</span>';
+    let exp = "—", expCls="";
+    if(l.expire_at){
+      const d = new Date(l.expire_at);
+      const days = Math.ceil((d-new Date())/86400000);
+      exp = d.toLocaleDateString("vi-VN");
+      if(days<0){ exp += " (quá hạn)"; expCls="exp-over"; }
+      else if(days<=5){ exp += " ("+days+"d)"; expCls="exp-soon"; }
+      else exp += " ("+days+"d)";
+    }
+    const online = onlineHwids.has(l.hwid) ? '<span style="color:#4ade80">● online</span>' : '<span class="muted">○</span>';
+    const h = esc(l.hwid);
+    html += `<tr>
+      <td class="hwid">${esc(l.hwid)}</td>
+      <td>${esc(l.customer_name||"")}</td>
+      <td class="perm">${esc(l.license_key||"—")}</td>
+      <td class="perm">${esc(l.permissions)}</td>
+      <td>${badge}</td>
+      <td class="${expCls}">${exp}</td>
+      <td>${online}</td>
+      <td><div class="actions">
+        ${l.status==="blocked"
+          ? `<button class="ok sm" onclick="setStatusLic('${h}','active')">Mở chặn</button>`
+          : `<button class="danger sm" onclick="setStatusLic('${h}','blocked')">Chặn</button>`}
+        <button class="warn sm" onclick="extend('${h}',30)">+30d</button>
+        <button class="ghost sm" onclick="extend('${h}',7)">+7d</button>
+        <button class="danger sm" onclick="delLic('${h}')">Xóa</button>
+      </div></td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  document.getElementById("tableBox").innerHTML = html;
+}
+
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function addLicense(){
+  const hwid = document.getElementById("nHwid").value.trim().toUpperCase();
+  const name = document.getElementById("nName").value.trim();
+  const key  = document.getElementById("nKey").value.trim().toUpperCase();
+  const perm = document.getElementById("nPerm").value;
+  const days = parseInt(document.getElementById("nDays").value)||30;
+  if(!hwid){ toast("Nhập HWID", true); return; }
+  const exp = new Date(Date.now()+days*86400000).toISOString();
+  try{
+    await call("add", { hwid, customer_name:name, license_key:key, permissions:perm, expire_at:exp });
+    document.getElementById("nHwid").value=""; document.getElementById("nName").value=""; document.getElementById("nKey").value="";
+    toast("Đã thêm license cho "+(name||hwid));
+    await loadAll();
+  }catch(e){ toast("Lỗi: "+e.message, true); }
+}
+
+async function setStatusLic(hwid, status){
+  try{ await call("set_status", { hwid, status }); toast(status==="blocked"?"Đã chặn":"Đã mở chặn"); await loadAll(); }
+  catch(e){ toast("Lỗi: "+e.message, true); }
+}
+
+async function extend(hwid, days){
+  try{ await call("extend", { hwid, days }); toast("Đã gia hạn +"+days+" ngày"); await loadAll(); }
+  catch(e){ toast("Lỗi: "+e.message, true); }
+}
+
+async function delLic(hwid){
+  if(!confirm("Xóa license này? Không khôi phục được.\n"+hwid)) return;
+  try{ await call("delete", { hwid }); toast("Đã xóa"); await loadAll(); }
+  catch(e){ toast("Lỗi: "+e.message, true); }
+}
+</script>
+</body>
+</html>
