@@ -3,334 +3,803 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DRIFTK1NG - Quản lý License</title>
+<title>DRIFTK1NG Admin</title>
 <style>
-  :root{
-    --bg:#0f1115; --panel:#181b22; --panel2:#1f232c; --border:#2a2f3a;
-    --txt:#e7eaf0; --muted:#8b93a7; --accent:#3ddc84; --accent2:#2563eb;
-    --danger:#ef4444; --warn:#f59e0b; --ok:#22c55e; --cyan:#22d3ee;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
-  header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 22px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:10}
-  header h1{font-size:17px;margin:0;font-weight:600}
-  header .dot{width:10px;height:10px;border-radius:50%;background:#555}
-  header .dot.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
-  header .spacer{flex:1}
-  .wrap{max-width:1300px;margin:0 auto;padding:22px}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:18px}
-  .card h2{font-size:14px;margin:0 0 14px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
-  label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
-  input,select,textarea{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:7px;padding:9px 11px;color:var(--txt);font-size:13px;outline:none;font-family:inherit}
-  input:focus,select:focus,textarea:focus{border-color:var(--accent2)}
-  textarea{font-family:Consolas,monospace;resize:vertical}
-  .row{display:grid;gap:12px}
-  .row.login{grid-template-columns:1fr auto auto;max-width:560px}
-  .row.gen{grid-template-columns:1fr 1fr 2fr auto}
-  button{cursor:pointer;border:none;border-radius:7px;padding:9px 16px;font-size:13px;font-weight:600;color:#fff;background:var(--accent2);transition:.15s;white-space:nowrap}
-  button:hover{filter:brightness(1.12)}
-  button.ok{background:var(--accent);color:#06240f}
-  button.sm{padding:6px 10px;font-size:12px}
-  button.danger{background:var(--danger)}
-  button.warn{background:var(--warn);color:#2b1a00}
-  button.ghost{background:var(--panel2);border:1px solid var(--border)}
-  table{width:100%;border-collapse:collapse;margin-top:4px}
-  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px}
-  th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
-  td.key{font-family:Consolas,monospace;font-size:12px;color:#d7defa;white-space:nowrap}
-  td.hwid{font-family:Consolas,monospace;font-size:11px;color:#8b93a7;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  tr:hover td{background:#1c2029}
-  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
-  .b-active{background:rgba(34,197,94,.15);color:#4ade80}
-  .b-blocked{background:rgba(239,68,68,.15);color:#f87171}
-  .b-expired{background:rgba(245,158,11,.15);color:#fbbf24}
-  .b-unused{background:rgba(34,211,238,.13);color:#67e8f9}
-  .actions{display:flex;gap:6px;flex-wrap:wrap}
-  .toast{position:fixed;bottom:22px;right:22px;background:var(--panel2);border:1px solid var(--border);border-left:4px solid var(--accent);padding:13px 18px;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;transform:translateY(10px);transition:.25s;max-width:360px}
-  .toast.show{opacity:1;transform:translateY(0)}
-  .toast.err{border-left-color:var(--danger)}
-  .stats{display:flex;gap:16px;flex-wrap:wrap}
-  .stat{background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:13px 18px;min-width:108px}
-  .stat .n{font-size:24px;font-weight:700}
-  .stat .l{font-size:12px;color:var(--muted);margin-top:2px}
-  .toolbar{display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-  .toolbar input{max-width:260px}
-  .muted{color:var(--muted)}
-  .empty{text-align:center;padding:40px;color:var(--muted)}
-  .exp-soon{color:#fbbf24}.exp-over{color:#f87171}
-  .hint{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
-  #genResult{display:none;margin-top:14px}
-  #genResult .bar{display:flex;gap:10px;align-items:center;margin-bottom:8px}
-  @media(max-width:900px){.row.login,.row.gen{grid-template-columns:1fr}}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f13;
+  --panel:#161920;
+  --panel2:#1c1f27;
+  --panel3:#222630;
+  --border:#262b35;
+  --border2:#2f3545;
+  --txt:#e2e6f0;
+  --txt2:#a8b0c4;
+  --txt3:#636b80;
+  --accent:#4f8ef7;
+  --accent-glow:rgba(79,142,247,.18);
+  --green:#22c55e;
+  --green-bg:rgba(34,197,94,.1);
+  --red:#ef4444;
+  --red-bg:rgba(239,68,68,.1);
+  --amber:#f59e0b;
+  --amber-bg:rgba(245,158,11,.1);
+  --cyan:#06b6d4;
+  --cyan-bg:rgba(6,182,212,.1);
+  --purple:#a855f7;
+  --purple-bg:rgba(168,85,247,.1);
+  --radius:10px;
+  --shadow:0 4px 24px rgba(0,0,0,.45);
+}
+html,body{min-height:100%;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.5}
+
+/* TOPBAR */
+.topbar{
+  background:var(--panel);border-bottom:1px solid var(--border);
+  padding:0 24px;height:52px;display:flex;align-items:center;
+  gap:14px;position:sticky;top:0;z-index:100;
+}
+.topbar-logo{display:flex;align-items:center;gap:10px}
+.logo-icon{
+  width:28px;height:28px;border-radius:7px;
+  background:linear-gradient(135deg,#4f8ef7,#a855f7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.topbar-title{font-size:14px;font-weight:700}
+.topbar-spacer{flex:1}
+.status-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--txt3)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--txt3);flex-shrink:0;transition:.3s}
+.status-dot.on{background:var(--green);box-shadow:0 0 5px var(--green)}
+
+/* WRAP */
+.wrap{max-width:1280px;margin:0 auto;padding:22px 24px 40px}
+
+/* LOGIN */
+.login-box{
+  max-width:420px;margin:60px auto;
+}
+.login-header{text-align:center;margin-bottom:22px}
+.login-header .logo-icon{width:46px;height:46px;border-radius:12px;font-size:18px;margin:0 auto 10px}
+.login-header h1{font-size:20px;font-weight:800;margin-bottom:4px}
+.login-header p{color:var(--txt3);font-size:13px}
+
+/* CARD */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+.card-title{font-size:12px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--txt3);display:flex;align-items:center;gap:7px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.stat-label{font-size:11px;color:var(--txt3);font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.stat-num{font-size:24px;font-weight:800;line-height:1}
+.stat-sub{font-size:11px;color:var(--txt3);margin-top:3px}
+.c-total .stat-num{color:var(--txt)}
+.c-unused .stat-num{color:var(--cyan)}
+.c-active .stat-num{color:var(--green)}
+.c-expired .stat-num{color:var(--amber)}
+.c-blocked .stat-num{color:var(--red)}
+.c-online .stat-num{color:var(--purple)}
+
+/* EXPIRY WARNING */
+.warn-bar{
+  background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.25);
+  border-radius:var(--radius);padding:12px 16px;margin-bottom:18px;
+  display:none;
+}
+.warn-bar-title{color:var(--amber);font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.warn-items{display:flex;flex-wrap:wrap;gap:8px}
+.warn-item{
+  background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);
+  border-radius:7px;padding:6px 12px;font-size:12px;display:flex;align-items:center;gap:8px;
+}
+.warn-item b{color:var(--amber)}
+.warn-item .wi-key{font-family:monospace;color:var(--txt2);font-size:11px}
+
+/* GEN SECTION */
+.gen-grid{display:grid;grid-template-columns:1fr 1fr 1.2fr 1.5fr auto auto;gap:12px;align-items:flex-end}
+.gen-result{display:none;margin-top:14px}
+.gen-result-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.gen-result-label{color:var(--green);font-weight:700;font-size:13px}
+
+/* FORM */
+.form-group label{display:block;font-size:12px;color:var(--txt2);margin-bottom:5px;font-weight:500}
+input[type=text],input[type=number],input[type=password],select,textarea{
+  width:100%;background:var(--panel2);border:1px solid var(--border);
+  border-radius:8px;padding:8px 11px;color:var(--txt);font-size:13px;outline:none;
+  font-family:inherit;transition:.15s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+textarea{font-family:monospace;resize:vertical}
+.remember-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt2);cursor:pointer}
+.remember-row input{width:auto}
+
+/* BUTTONS */
+.btn{cursor:pointer;border:none;border-radius:8px;padding:8px 15px;font-size:13px;font-weight:600;color:#fff;display:inline-flex;align-items:center;gap:6px;transition:.15s;white-space:nowrap}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent)}
+.btn-success{background:var(--green);color:#071a10}
+.btn-danger{background:var(--red)}
+.btn-warn{background:var(--amber);color:#211500}
+.btn-ghost{background:var(--panel2);border:1px solid var(--border);color:var(--txt2)}
+.btn-ghost:hover{color:var(--txt);border-color:var(--border2)}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:6px}
+.btn-full{width:100%;justify-content:center}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.search-wrap{position:relative;flex:1;min-width:180px;max-width:320px}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:13px;pointer-events:none}
+.search-wrap input{padding-left:30px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{
+  text-align:left;padding:9px 13px;font-size:11px;font-weight:700;
+  letter-spacing:.6px;text-transform:uppercase;color:var(--txt3);
+  border-bottom:1px solid var(--border);cursor:pointer;user-select:none;white-space:nowrap;
+}
+thead th:hover{color:var(--txt2)}
+thead th.sorted{color:var(--accent)}
+tbody tr{border-bottom:1px solid var(--border);transition:.1s}
+tbody tr:hover{background:var(--panel2)}
+tbody tr:last-child{border-bottom:none}
+td{padding:10px 13px;font-size:13px;vertical-align:middle}
+.td-key{font-family:monospace;font-size:12px;color:#c5cff5;white-space:nowrap}
+.td-hwid{font-family:monospace;font-size:11px;color:var(--txt3);max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td-note{font-size:11px;color:var(--txt3);margin-top:2px}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.7}
+.b-active{background:var(--green-bg);color:#4ade80}
+.b-blocked{background:var(--red-bg);color:#f87171}
+.b-expired{background:var(--amber-bg);color:#fbbf24}
+.b-unused{background:var(--cyan-bg);color:#67e8f9}
+
+/* ONLINE */
+.online-on{color:var(--green);display:flex;align-items:center;gap:5px;font-size:12px}
+.online-off{color:var(--txt3);font-size:12px}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}70%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+
+/* COPY BTN */
+.copy-btn{background:none;border:none;cursor:pointer;color:var(--txt3);font-size:12px;padding:2px 5px;border-radius:4px;transition:.1s}
+.copy-btn:hover{color:var(--accent);background:var(--accent-glow)}
+
+/* ACTION DROPDOWN */
+.action-wrap{position:relative;display:inline-block}
+.action-menu{
+  position:absolute;right:0;top:calc(100% + 4px);z-index:200;
+  background:var(--panel2);border:1px solid var(--border2);
+  border-radius:10px;min-width:175px;padding:6px 0;
+  box-shadow:var(--shadow);opacity:0;transform:translateY(-6px) scale(.97);
+  pointer-events:none;transition:.15s;transform-origin:top right;
+}
+.action-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.ami{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;font-size:13px;color:var(--txt2);transition:.1s;white-space:nowrap}
+.ami:hover{background:var(--panel3);color:var(--txt)}
+.ami.danger{color:var(--red)}
+.ami.danger:hover{background:var(--red-bg)}
+.ami.success{color:var(--green)}
+.ami-icon{font-size:14px;width:16px;text-align:center;flex-shrink:0}
+.ami-div{height:1px;background:var(--border);margin:4px 0}
+
+/* PAGINATION */
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px}
+.page-info{font-size:12px;color:var(--txt3)}
+.page-btns{display:flex;gap:5px}
+.pbtn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--panel2);color:var(--txt2);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:.1s}
+.pbtn:hover{border-color:var(--accent);color:var(--accent)}
+.pbtn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.pbtn:disabled{opacity:.35;cursor:default}
+
+/* EXP */
+.exp-warn{color:var(--amber)}
+.exp-over{color:var(--red)}
+.muted{color:var(--txt3)}
+
+/* TOAST */
+.toast-ct{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:340px}
+.toast{background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:11px 15px;box-shadow:var(--shadow);font-size:13px;display:flex;align-items:center;gap:9px;border-left:4px solid var(--accent);animation:t-in .2s ease}
+.toast.err{border-left-color:var(--red)}.toast.ok{border-left-color:var(--green)}
+@keyframes t-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:9000;opacity:0;pointer-events:none;transition:.2s}
+.modal-ov.open{opacity:1;pointer-events:auto}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:26px;min-width:320px;max-width:460px;width:90%;transform:scale(.95);transition:.2s;box-shadow:var(--shadow)}
+.modal-ov.open .modal{transform:scale(1)}
+.modal-title{font-size:15px;font-weight:700;margin-bottom:8px}
+.modal-body{color:var(--txt2);font-size:13px;margin-bottom:18px;line-height:1.6}
+.modal-key{font-family:monospace;background:var(--panel2);border:1px solid var(--border);padding:5px 9px;border-radius:6px;font-size:12px;color:var(--cyan);margin:6px 0;display:block;word-break:break-all}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end}
+
+/* SPINNER */
+.spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px;color:var(--txt3)}
+.empty-icon{font-size:36px;margin-bottom:10px;opacity:.5}
+
+/* HIDDEN */
+.hidden{display:none!important}
+
+/* RESPONSIVE */
+@media(max-width:1000px){
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+  .gen-grid{grid-template-columns:1fr 1fr 1fr 1fr}
+}
+@media(max-width:700px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .gen-grid{grid-template-columns:1fr 1fr}
+  .wrap{padding:14px 14px 40px}
+}
+@media(max-width:460px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .gen-grid{grid-template-columns:1fr}
+}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
 </style>
 </head>
 <body>
-<header>
-  <span class="dot" id="statusDot"></span>
-  <h1>DRIFTK1NG — Quản lý License</h1>
-  <span class="muted" id="statusTxt" style="font-size:12px">Chưa đăng nhập</span>
-  <span class="spacer"></span>
-  <button class="ghost sm" id="logoutBtn" style="display:none" onclick="logout()">Đăng xuất</button>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-icon">DK</div>
+    <div class="topbar-title">DRIFTK1NG Admin</div>
+  </div>
+  <div class="topbar-spacer"></div>
+  <div class="status-row">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusTxt">Chưa đăng nhập</span>
+  </div>
+  <button class="btn btn-ghost btn-sm hidden" id="refreshBtn" onclick="loadAll()">⟳ Làm mới</button>
+  <button class="btn btn-ghost btn-sm hidden" id="logoutBtn" onclick="logout()">⎋ Đăng xuất</button>
 </header>
 
 <div class="wrap">
 
-  <!-- Đăng nhập -->
-  <div class="card" id="loginCard">
-    <h2>Đăng nhập Admin</h2>
-    <div class="row login">
-      <div>
-        <label>Mật khẩu admin</label>
-        <input id="pass" type="password" placeholder="Mật khẩu riêng của bạn" onkeydown="if(event.key==='Enter')login()">
+  <!-- ===== LOGIN ===== -->
+  <div id="loginSection">
+    <div class="login-box">
+      <div class="login-header">
+        <div class="logo-icon">DK</div>
+        <h1>DRIFTK1NG</h1>
+        <p>Đăng nhập để quản lý license</p>
       </div>
-      <div style="display:flex;align-items:flex-end">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin:0 0 9px">
-          <input type="checkbox" id="remember" style="width:auto" checked> <span>Nhớ</span>
+      <div class="card">
+        <div class="form-group" style="margin-bottom:12px">
+          <label>Mật khẩu Admin</label>
+          <input id="passInput" type="password" placeholder="Nhập mật khẩu..." onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <label class="remember-row" style="margin-bottom:14px">
+          <input type="checkbox" id="rememberChk" checked> Nhớ mật khẩu
         </label>
+        <button class="btn btn-primary btn-full" onclick="doLogin()">Đăng nhập</button>
+        <button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="loadDemo()">👁 Xem demo (không cần mật khẩu)</button>
+        <p class="muted" style="font-size:12px;margin-top:10px">Mật khẩu = secret <b>ADMIN_PASSWORD</b> trên Supabase.</p>
       </div>
-      <div style="display:flex;align-items:flex-end"><button class="ok" onclick="login()">Đăng nhập</button></div>
-    </div>
-    <div class="hint">Mật khẩu là chuỗi đã đặt trong Supabase (secret <b>ADMIN_PASSWORD</b>).</div>
-  </div>
-
-  <!-- Thống kê -->
-  <div class="card" id="statsCard" style="display:none">
-    <div class="stats">
-      <div class="stat"><div class="n" id="sTotal">0</div><div class="l">Tổng key</div></div>
-      <div class="stat"><div class="n" id="sUnused" style="color:#67e8f9">0</div><div class="l">Chưa dùng</div></div>
-      <div class="stat"><div class="n" id="sActive" style="color:#4ade80">0</div><div class="l">Đang chạy</div></div>
-      <div class="stat"><div class="n" id="sExpired" style="color:#fbbf24">0</div><div class="l">Hết hạn</div></div>
-      <div class="stat"><div class="n" id="sBlocked" style="color:#f87171">0</div><div class="l">Bị chặn</div></div>
-      <div class="stat"><div class="n" id="sSessions" style="color:#60a5fa">0</div><div class="l">Online</div></div>
     </div>
   </div>
 
-  <!-- Tạo key -->
-  <div class="card" id="genCard" style="display:none">
-    <h2>Tạo key mới (DFK-xxxx)</h2>
-    <div class="row gen">
-      <div><label>Số lượng key</label><input id="gCount" type="number" value="1" min="1" max="200"></div>
-      <div><label>Số ngày (0 = vĩnh viễn)</label><input id="gDays" type="number" value="30" min="0"></div>
-      <div><label>Ghi chú (tùy chọn)</label><input id="gNote" placeholder="VD: đợt bán 11/11"></div>
-      <div style="display:flex;align-items:flex-end"><button class="ok" onclick="genKeys()">Tạo key</button></div>
-    </div>
-    <div id="genResult">
-      <div class="bar">
-        <b style="color:var(--accent)">Key vừa tạo (copy gửi khách):</b>
-        <button class="ghost sm" onclick="copyGen()">Copy tất cả</button>
+  <!-- ===== DASHBOARD ===== -->
+  <div id="dashSection" class="hidden">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat c-total">
+        <div class="stat-label">🗝 Tổng key</div>
+        <div class="stat-num" id="sTotal">0</div>
+        <div class="stat-sub">Tất cả đã tạo</div>
       </div>
-      <textarea id="genKeysBox" rows="6" readonly></textarea>
+      <div class="stat c-unused">
+        <div class="stat-label">📦 Chưa dùng</div>
+        <div class="stat-num" id="sUnused">0</div>
+        <div class="stat-sub">Chờ kích hoạt</div>
+      </div>
+      <div class="stat c-active">
+        <div class="stat-label">✅ Đang chạy</div>
+        <div class="stat-num" id="sActive">0</div>
+        <div class="stat-sub">Key hợp lệ</div>
+      </div>
+      <div class="stat c-expired">
+        <div class="stat-label">⏰ Hết hạn</div>
+        <div class="stat-num" id="sExpired">0</div>
+        <div class="stat-sub">Cần gia hạn</div>
+      </div>
+      <div class="stat c-blocked">
+        <div class="stat-label">🚫 Bị chặn</div>
+        <div class="stat-num" id="sBlocked">0</div>
+        <div class="stat-sub">Đã vô hiệu hóa</div>
+      </div>
+      <div class="stat c-online">
+        <div class="stat-label">🟢 Online</div>
+        <div class="stat-num" id="sSessions">0</div>
+        <div class="stat-sub">Đang hoạt động</div>
+      </div>
     </div>
-    <div class="hint">Số ngày tính từ lúc khách <b>kích hoạt</b> (không phải lúc tạo). Mỗi key chỉ chạy được trên <b>1 máy</b>.</div>
-  </div>
 
-  <!-- Danh sách -->
-  <div class="card" id="listCard" style="display:none">
-    <div class="toolbar">
-      <h2 style="margin:0">Danh sách key</h2>
-      <input id="search" placeholder="Tìm key / máy / ghi chú..." oninput="render()">
-      <select id="filterStatus" onchange="render()" style="max-width:170px">
-        <option value="">Tất cả</option>
-        <option value="unused">Chưa dùng</option>
-        <option value="active">Đang chạy</option>
-        <option value="expired">Hết hạn</option>
-        <option value="blocked">Bị chặn</option>
-      </select>
-      <button class="ghost sm" onclick="loadAll()">⟳ Làm mới</button>
+    <!-- EXPIRY WARNING -->
+    <div class="warn-bar" id="warnBar">
+      <div class="warn-bar-title">⚠️ Key sắp hết hạn (trong 7 ngày)</div>
+      <div class="warn-items" id="warnItems"></div>
     </div>
-    <div id="tableBox"></div>
-  </div>
 
+    <!-- TẠO KEY -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">✨ Tạo key mới</div>
+      </div>
+      <div class="gen-grid">
+        <div class="form-group">
+          <label>Số lượng key</label>
+          <input id="gCount" type="number" value="1" min="1" max="200">
+        </div>
+        <div class="form-group">
+          <label>Số ngày (0 = vĩnh viễn)</label>
+          <input id="gDays" type="number" value="30" min="0">
+        </div>
+        <div class="form-group">
+          <label>Tên khách hàng</label>
+          <input id="gName" type="text" placeholder="VD: Nguyễn Văn A">
+        </div>
+        <div class="form-group">
+          <label>Ghi chú</label>
+          <input id="gNote" type="text" placeholder="VD: Đợt sale 11/11, tặng kèm...">
+        </div>
+        <div class="form-group" style="grid-column:span 2">
+          <label style="visibility:hidden">.</label>
+          <button class="btn btn-success btn-full" onclick="genKeys()" id="genBtn">✨ Tạo key</button>
+        </div>
+      </div>
+      <p class="muted" style="font-size:12px;margin-top:8px">💡 Số ngày tính từ lúc khách <b>kích hoạt</b>. Mỗi key chỉ dùng được trên <b>1 máy</b>.</p>
+      <div class="gen-result" id="genResult">
+        <div class="gen-result-bar">
+          <span class="gen-result-label" id="genLabel">✅ Tạo thành công</span>
+          <button class="btn btn-ghost btn-sm" onclick="copyAllKeys()">📋 Copy tất cả</button>
+          <button class="btn btn-ghost btn-sm" onclick="closeGenResult()">✕</button>
+        </div>
+        <textarea id="genKeysBox" rows="6" readonly></textarea>
+      </div>
+    </div>
+
+    <!-- DANH SÁCH KEY -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🔑 Danh sách key</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span class="muted" id="keyCountTxt" style="font-size:12px"></span>
+          <button class="btn btn-ghost btn-sm" onclick="loadAll()">⟳ Làm mới</button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input id="searchInput" type="text" placeholder="Tìm key, ghi chú, HWID..." oninput="applyFilter()">
+        </div>
+        <select id="filterStatus" onchange="applyFilter()" style="max-width:175px">
+          <option value="">Tất cả</option>
+          <option value="unused">📦 Chưa dùng</option>
+          <option value="active">✅ Đang chạy</option>
+          <option value="expired">⏰ Hết hạn</option>
+          <option value="blocked">🚫 Bị chặn</option>
+        </select>
+      </div>
+      <div class="table-wrap" id="tableWrap">
+        <div class="empty"><div class="spinner"></div></div>
+      </div>
+      <div class="pagination" id="paginationBar"></div>
+    </div>
+
+  </div><!-- /dashSection -->
+</div><!-- /wrap -->
+
+<!-- TOAST -->
+<div class="toast-ct" id="toastCt"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-ov" id="confirmModal" onclick="if(event.target===this)closeConfirm()">
+  <div class="modal">
+    <div class="modal-title" id="confirmTitle">Xác nhận</div>
+    <div class="modal-body" id="confirmBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Hủy</button>
+      <button class="btn" id="confirmOkBtn">Xác nhận</button>
+    </div>
+  </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- EXTEND MODAL -->
+<div class="modal-ov" id="extendModal" onclick="if(event.target===this)closeExtend()">
+  <div class="modal">
+    <div class="modal-title">Gia hạn key</div>
+    <div class="modal-body">
+      Key: <code class="modal-key" id="extendKeyDisplay"></code>
+      <div class="form-group" style="margin-top:12px">
+        <label>Số ngày muốn gia hạn thêm</label>
+        <input id="extendDays" type="number" value="30" min="1" max="3650">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeExtend()">Hủy</button>
+      <button class="btn btn-warn" onclick="doExtend()">Gia hạn</button>
+    </div>
+  </div>
+</div>
 
 <script>
+/* CONFIG */
 const SB_URL   = "https://goodthgpljojozxrffla.supabase.co";
 const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdvb2R0aGdwbGpvam96eHJmZmxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMDA2NzEsImV4cCI6MjEwNjc3NjY3MX0.4Mpn4CJuP0o2qNvYYSbmc0qPXShTu-B8RbTSVopAEZ0";
 const FN = SB_URL + "/functions/v1/admin";
+const PAGE_SIZE = 25;
 
-let PASS = "", DATA = [], SESS = [];
+/* STATE */
+let PASS="", DATA=[], SESS=[];
+let filtered=[], currentPage=1, sortCol="license_key", sortAsc=true;
+let extendTarget=null;
 
-(function init(){
-  try{ const p = localStorage.getItem("dfk_admin_pass"); if(p){ document.getElementById("pass").value=p; PASS=p; login(true); } }catch(e){}
+/* INIT */
+(function(){
+  try{ const p=localStorage.getItem("dfk_admin_pass"); if(p){document.getElementById("passInput").value=p;PASS=p;doLogin(true);} }catch(e){}
+  document.addEventListener("click",e=>{if(!e.target.closest(".action-wrap"))closeAllMenus();});
 })();
 
-function toast(msg, isErr){
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.className = "toast show"+(isErr?" err":"");
-  clearTimeout(t._t); t._t = setTimeout(()=>{ t.className="toast"+(isErr?" err":""); }, 3400);
+/* API */
+async function apicall(action,extra){
+  const r=await fetch(FN,{method:"POST",headers:{"Authorization":"Bearer "+ANON_KEY,"Content-Type":"application/json"},body:JSON.stringify({pass:PASS,action,...(extra||{})})});
+  const d=await r.json().catch(()=>({ok:false,error:"HTTP "+r.status}));
+  if(!r.ok||!d.ok){const map={wrong_password:"Sai mật khẩu",server_not_configured:"Server chưa đặt ADMIN_PASSWORD"};throw new Error(map[d.error]||d.error||("HTTP "+r.status));}
+  return d;
 }
 
-async function call(action, extra){
-  const r = await fetch(FN, {
-    method:"POST",
-    headers:{ "Authorization":"Bearer "+ANON_KEY, "Content-Type":"application/json" },
-    body: JSON.stringify({ pass:PASS, action, ...(extra||{}) })
-  });
-  const data = await r.json().catch(()=>({ok:false,error:"HTTP "+r.status}));
-  if(!r.ok || !data.ok){
-    const map = { wrong_password:"Sai mật khẩu", server_not_configured:"Server chưa đặt ADMIN_PASSWORD" };
-    throw new Error(map[data.error] || data.error || ("HTTP "+r.status));
-  }
-  return data;
-}
-
-async function login(silent){
-  PASS = document.getElementById("pass").value;
-  if(!PASS){ if(!silent) toast("Nhập mật khẩu", true); return; }
+/* AUTH */
+async function doLogin(silent){
+  PASS=document.getElementById("passInput").value.trim();
+  if(!PASS){if(!silent)toast("Nhập mật khẩu trước","err");return;}
   try{
     await loadAll();
-    if(document.getElementById("remember").checked) localStorage.setItem("dfk_admin_pass", PASS);
-    document.getElementById("loginCard").style.display="none";
-    document.getElementById("statsCard").style.display="block";
-    document.getElementById("genCard").style.display="block";
-    document.getElementById("listCard").style.display="block";
-    document.getElementById("logoutBtn").style.display="inline-block";
-    setStatus(true);
-  }catch(e){ setStatus(false); if(!silent) toast(e.message, true); }
+    if(document.getElementById("rememberChk").checked) localStorage.setItem("dfk_admin_pass",PASS);
+    showDash();
+  }catch(e){setStatus(false);if(!silent)toast("Lỗi: "+e.message,"err");}
 }
 
 function logout(){
   localStorage.removeItem("dfk_admin_pass");
-  PASS=""; DATA=[]; SESS=[];
-  document.getElementById("pass").value="";
-  document.getElementById("loginCard").style.display="block";
-  for(const id of ["statsCard","genCard","listCard"]) document.getElementById(id).style.display="none";
-  document.getElementById("logoutBtn").style.display="none";
-  setStatus(false, "Đã đăng xuất");
+  PASS="";DATA=[];SESS=[];
+  document.getElementById("passInput").value="";
+  document.getElementById("loginSection").classList.remove("hidden");
+  document.getElementById("dashSection").classList.add("hidden");
+  document.getElementById("refreshBtn").classList.add("hidden");
+  document.getElementById("logoutBtn").classList.add("hidden");
+  setStatus(false,"Đã đăng xuất");
 }
 
+function showDash(){
+  document.getElementById("loginSection").classList.add("hidden");
+  document.getElementById("dashSection").classList.remove("hidden");
+  document.getElementById("refreshBtn").classList.remove("hidden");
+  document.getElementById("logoutBtn").classList.remove("hidden");
+  setStatus(true);
+}
+
+function setStatus(on,txt){
+  document.getElementById("statusDot").className="status-dot"+(on?" on":"");
+  document.getElementById("statusTxt").textContent=txt||(on?"Đã đăng nhập":"Chưa đăng nhập");
+}
+
+/* LOAD */
 async function loadAll(){
-  const d = await call("list");
-  DATA = d.licenses || []; SESS = d.sessions || [];
-  render();
+  const d=await apicall("list");
+  DATA=d.licenses||[]; SESS=d.sessions||[];
+  updateStats(); renderWarn(); applyFilter();
+  toast("Đã cập nhật","ok");
 }
 
-function setStatus(ok, txt){
-  document.getElementById("statusDot").className = "dot"+(ok?" on":"");
-  document.getElementById("statusTxt").textContent = txt || (ok?"Đã đăng nhập":"Chưa đăng nhập");
-}
-
+/* STATUS */
 function effStatus(l){
   if(l.status==="blocked") return "blocked";
   if(!l.hwid) return "unused";
-  if(l.expire_at && new Date(l.expire_at) < new Date()) return "expired";
+  if(l.expire_at&&new Date(l.expire_at)<new Date()) return "expired";
   return "active";
 }
+function getOnline(){ return new Set(SESS.filter(s=>(new Date()-new Date(s.last_heartbeat))<90000).map(s=>s.hwid)); }
 
-async function genKeys(){
-  const count = parseInt(document.getElementById("gCount").value)||1;
-  const days  = parseInt(document.getElementById("gDays").value)||0;
-  const note  = document.getElementById("gNote").value.trim();
-  try{
-    const d = await call("gen", { count, days, customer_name:note });
-    const box = document.getElementById("genKeysBox");
-    box.value = (d.keys||[]).join("\n");
-    document.getElementById("genResult").style.display="block";
-    toast("Đã tạo "+(d.keys||[]).length+" key");
-    await loadAll();
-  }catch(e){ toast("Lỗi: "+e.message, true); }
+/* STATS */
+function updateStats(){
+  const on=getOnline();
+  document.getElementById("sTotal").textContent=DATA.length;
+  document.getElementById("sUnused").textContent=DATA.filter(l=>effStatus(l)==="unused").length;
+  document.getElementById("sActive").textContent=DATA.filter(l=>effStatus(l)==="active").length;
+  document.getElementById("sExpired").textContent=DATA.filter(l=>effStatus(l)==="expired").length;
+  document.getElementById("sBlocked").textContent=DATA.filter(l=>effStatus(l)==="blocked").length;
+  document.getElementById("sSessions").textContent=on.size;
 }
 
-function copyGen(){
-  const box = document.getElementById("genKeysBox");
-  box.select();
-  navigator.clipboard.writeText(box.value).then(()=>toast("Đã copy"), ()=>{ document.execCommand("copy"); toast("Đã copy"); });
+/* WARN BAR */
+function renderWarn(){
+  const soon=DATA.filter(l=>{
+    if(!l.expire_at) return false;
+    const days=Math.ceil((new Date(l.expire_at)-new Date())/86400000);
+    return days>=0&&days<=7&&effStatus(l)==="active";
+  }).sort((a,b)=>new Date(a.expire_at)-new Date(b.expire_at));
+  const bar=document.getElementById("warnBar");
+  if(soon.length===0){bar.style.display="none";return;}
+  bar.style.display="block";
+  document.getElementById("warnItems").innerHTML=soon.map(l=>{
+    const days=Math.ceil((new Date(l.expire_at)-new Date())/86400000);
+    return `<div class="warn-item">
+      <span class="wi-key">${esc(l.license_key)}</span>
+      <span>${l.customer_name?esc(l.customer_name):"—"}</span>
+      <b>còn ${days} ngày</b>
+      <button class="btn btn-warn btn-sm" onclick="openExtend('${esc(l.license_key)}')">Gia hạn</button>
+    </div>`;
+  }).join("");
 }
 
-function render(){
-  const q = document.getElementById("search").value.toLowerCase();
-  const fs = document.getElementById("filterStatus").value;
-  const online = new Set(SESS.filter(s=> (new Date()-new Date(s.last_heartbeat))<90000 ).map(s=>s.hwid));
-
-  let rows = DATA.filter(l=>{
-    const hay = ((l.license_key||"")+" "+(l.hwid||"")+" "+(l.customer_name||"")).toLowerCase();
-    if(q && !hay.includes(q)) return false;
-    if(fs && effStatus(l)!==fs) return false;
+/* FILTER + SORT */
+function applyFilter(){
+  const q=(document.getElementById("searchInput")?.value||"").toLowerCase();
+  const fs=document.getElementById("filterStatus")?.value||"";
+  filtered=DATA.filter(l=>{
+    const hay=((l.license_key||"")+" "+(l.hwid||"")+" "+(l.customer_name||"")).toLowerCase();
+    if(q&&!hay.includes(q)) return false;
+    if(fs&&effStatus(l)!==fs) return false;
     return true;
   });
+  filtered.sort((a,b)=>{
+    let va=a[sortCol]||"",vb=b[sortCol]||"";
+    if(sortCol==="expire_at"){va=va?new Date(va).getTime():0;vb=vb?new Date(vb).getTime():0;}
+    else{va=String(va).toLowerCase();vb=String(vb).toLowerCase();}
+    return sortAsc?(va<vb?-1:va>vb?1:0):(va<vb?1:va>vb?-1:0);
+  });
+  currentPage=1;
+  renderTable();
+  const sub=document.getElementById("keyCountTxt");
+  if(sub) sub.textContent=`${filtered.length} / ${DATA.length} key`;
+}
 
-  document.getElementById("sTotal").textContent   = DATA.length;
-  document.getElementById("sUnused").textContent  = DATA.filter(l=>effStatus(l)==="unused").length;
-  document.getElementById("sActive").textContent  = DATA.filter(l=>effStatus(l)==="active").length;
-  document.getElementById("sExpired").textContent = DATA.filter(l=>effStatus(l)==="expired").length;
-  document.getElementById("sBlocked").textContent = DATA.filter(l=>effStatus(l)==="blocked").length;
-  document.getElementById("sSessions").textContent= online.size;
+function setSort(col){
+  if(sortCol===col) sortAsc=!sortAsc; else{sortCol=col;sortAsc=true;}
+  applyFilter();
+}
 
-  if(rows.length===0){ document.getElementById("tableBox").innerHTML='<div class="empty">Không có key nào</div>'; return; }
+/* TABLE */
+function renderTable(){
+  const wrap=document.getElementById("tableWrap");
+  if(!wrap) return;
+  if(filtered.length===0){
+    wrap.innerHTML='<div class="empty"><div class="empty-icon">🔍</div>Không tìm thấy key nào</div>';
+    document.getElementById("paginationBar").innerHTML="";
+    return;
+  }
+  const online=getOnline();
+  const total=filtered.length,totalPages=Math.ceil(total/PAGE_SIZE);
+  currentPage=Math.min(currentPage,totalPages);
+  const start=(currentPage-1)*PAGE_SIZE, end=Math.min(start+PAGE_SIZE,total);
+  const rows=filtered.slice(start,end);
+  const sa=col=>sortCol===col?"sorted":"", ar=col=>sortCol===col?(sortAsc?"↑":"↓"):"↕";
 
-  let html = '<table><thead><tr><th>Key</th><th>Máy (HWID)</th><th>Trạng thái</th><th>Hết hạn</th><th>Online</th><th>Thao tác</th></tr></thead><tbody>';
+  let h=`<table><thead><tr>
+    <th class="${sa("license_key")}" onclick="setSort('license_key')">Key ${ar("license_key")}</th>
+    <th class="${sa("customer_name")}" onclick="setSort('customer_name')">Tên khách hàng ${ar("customer_name")}</th>
+    <th>Trạng thái</th>
+    <th class="${sa("expire_at")}" onclick="setSort('expire_at')">Hết hạn ${ar("expire_at")}</th>
+    <th>Online</th>
+    <th style="text-align:right">Thao tác</th>
+  </tr></thead><tbody>`;
+
   for(const l of rows){
-    const st = effStatus(l);
-    const badge = st==="active"?'<span class="badge b-active">Đang chạy</span>'
-               : st==="blocked"?'<span class="badge b-blocked">Bị chặn</span>'
-               : st==="expired"?'<span class="badge b-expired">Hết hạn</span>'
-               : '<span class="badge b-unused">Chưa dùng</span>';
-    let exp="—",expCls="";
+    const st=effStatus(l);
+    const badge={active:'<span class="badge b-active">Đang chạy</span>',blocked:'<span class="badge b-blocked">Bị chặn</span>',expired:'<span class="badge b-expired">Hết hạn</span>',unused:'<span class="badge b-unused">Chưa dùng</span>'}[st]||"";
+    let exp="—";
     if(l.expire_at){
-      const d=new Date(l.expire_at); const days=Math.ceil((d-new Date())/86400000);
-      exp=d.toLocaleDateString("vi-VN");
-      if(days<0){exp+=" (quá hạn)";expCls="exp-over";}
-      else if(days<=5){exp+=" ("+days+"d)";expCls="exp-soon";}
-      else exp+=" ("+days+"d)";
-    } else if(l.duration_days){ exp = l.duration_days+" ngày (khi KH)"; }
-    else { exp = "Vĩnh viễn"; }
-    const on = l.hwid && online.has(l.hwid) ? '<span style="color:#4ade80">● online</span>' : '<span class="muted">○</span>';
-    const k = esc(l.license_key);
-    const note = l.customer_name ? '<div class="muted" style="font-size:11px;margin-top:2px">'+esc(l.customer_name)+'</div>' : '';
-    html += `<tr>
-      <td class="key">${esc(l.license_key||"—")}${note}</td>
-      <td class="hwid">${l.hwid?esc(l.hwid):'<span class="muted">chưa gắn</span>'}</td>
+      const d=new Date(l.expire_at),days=Math.ceil((d-new Date())/86400000),lbl=d.toLocaleDateString("vi-VN");
+      if(days<0) exp=`<span class="exp-over">${lbl} <small>(quá ${-days} ngày)</small></span>`;
+      else if(days<=5) exp=`<span class="exp-warn">${lbl} <small>(còn ${days} ngày)</small></span>`;
+      else exp=`${lbl} <small class="muted">(còn ${days} ngày)</small>`;
+    } else if(l.duration_days){ exp=`<span class="muted">${l.duration_days} ngày khi KH</span>`; }
+    else { exp='<span class="muted">Vĩnh viễn</span>'; }
+    const isOn=l.hwid&&online.has(l.hwid);
+    const onHtml=isOn?'<span class="online-on"><span class="pulse"></span>Online</span>':'<span class="online-off">—</span>';
+    const k=esc(l.license_key);
+    // tách tên và ghi chú từ customer_name (định dạng "Tên — Ghi chú")
+    const parts=(l.customer_name||"").split(" — ");
+    const tenKH=parts[0]||"";
+    const ghiChu=parts.slice(1).join(" — ");
+    const nameCell=tenKH?`<div style="font-weight:600">${esc(tenKH)}</div>`:'<span class="muted">—</span>';
+    const noteCell=ghiChu?`<div class="td-note">${esc(ghiChu)}</div>`:"";
+    h+=`<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span class="td-key">${esc(l.license_key)}</span>
+          <button class="copy-btn" onclick="copyText('${k}')" title="Copy">📋</button>
+        </div>
+        ${l.hwid?`<div class="td-hwid" title="${esc(l.hwid)}">${esc(l.hwid)}</div>`:""}
+      </td>
+      <td>${nameCell}${noteCell}</td>
       <td>${badge}</td>
-      <td class="${expCls}">${exp}</td>
-      <td>${on}</td>
-      <td><div class="actions">
-        ${l.status==="blocked"
-          ? `<button class="ok sm" onclick="act('set_status','${k}',{status:'active'},'Đã mở chặn')">Mở chặn</button>`
-          : `<button class="danger sm" onclick="act('set_status','${k}',{status:'blocked'},'Đã chặn')">Chặn</button>`}
-        <button class="warn sm" onclick="act('extend','${k}',{days:30},'Đã +30 ngày')">+30d</button>
-        <button class="ghost sm" onclick="act('extend','${k}',{days:7},'Đã +7 ngày')">+7d</button>
-        <button class="ghost sm" onclick="resetKey('${k}')">Reset máy</button>
-        <button class="danger sm" onclick="delKey('${k}')">Xóa</button>
-      </div></td>
+      <td>${exp}</td>
+      <td>${onHtml}</td>
+      <td style="text-align:right">
+        <div class="action-wrap">
+          <button class="btn btn-ghost btn-sm" onclick="toggleMenu('${k}',event)">⋯</button>
+          <div class="action-menu" id="menu-${k}">
+            ${st==="blocked"
+              ?`<div class="ami success" onclick="act('set_status','${k}',{status:'active'},'Đã mở chặn');closeAllMenus()"><span class="ami-icon">✅</span>Mở chặn</div>`
+              :`<div class="ami danger" onclick="act('set_status','${k}',{status:'blocked'},'Đã chặn');closeAllMenus()"><span class="ami-icon">🚫</span>Chặn key</div>`}
+            <div class="ami" onclick="openExtend('${k}');closeAllMenus()"><span class="ami-icon">📅</span>Gia hạn...</div>
+            <div class="ami" onclick="act('extend','${k}',{days:7},'Đã +7 ngày');closeAllMenus()"><span class="ami-icon">➕</span>+7 ngày</div>
+            <div class="ami" onclick="act('extend','${k}',{days:30},'Đã +30 ngày');closeAllMenus()"><span class="ami-icon">➕</span>+30 ngày</div>
+            <div class="ami-div"></div>
+            <div class="ami" onclick="confirmAct('reset','${k}');closeAllMenus()"><span class="ami-icon">🔄</span>Reset máy</div>
+            <div class="ami danger" onclick="confirmAct('delete','${k}');closeAllMenus()"><span class="ami-icon">🗑</span>Xóa key</div>
+          </div>
+        </div>
+      </td>
     </tr>`;
   }
-  html += '</tbody></table>';
-  document.getElementById("tableBox").innerHTML = html;
+  h+="</tbody></table>";
+  wrap.innerHTML=h;
+  renderPage(total,totalPages);
 }
 
-function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-// Cập nhật ngay trên bộ nhớ để giao diện phản hồi tức thì (không chờ server)
-function applyLocal(action, key, extra){
-  const i = DATA.findIndex(l=>l.license_key===key);
-  if(i<0) return;
-  if(action==="delete"){ DATA.splice(i,1); return; }
-  const l = DATA[i];
-  if(action==="set_status"){ l.status = extra.status; }
-  else if(action==="extend"){
-    const base = (l.expire_at && new Date(l.expire_at)>new Date()) ? new Date(l.expire_at) : new Date();
-    l.expire_at = new Date(base.getTime()+extra.days*86400000).toISOString();
-    l.status = "active";
-  }
-  else if(action==="reset"){ l.hwid=null; l.activated_at=null; l.expire_at=null; }
+/* PAGINATION */
+function renderPage(total,totalPages){
+  const bar=document.getElementById("paginationBar");
+  if(!bar||totalPages<=1){if(bar)bar.innerHTML="";return;}
+  const s=(currentPage-1)*PAGE_SIZE+1,e=Math.min(currentPage*PAGE_SIZE,total);
+  let h=`<div class="page-info">Hiển thị ${s}–${e} trong ${total}</div><div class="page-btns">`;
+  h+=`<button class="pbtn" onclick="goPage(${currentPage-1})" ${currentPage<=1?"disabled":""}>‹</button>`;
+  const rng=pRange(currentPage,totalPages);
+  for(const p of rng) h+=p==="..."?`<button class="pbtn" disabled>…</button>`:`<button class="pbtn ${p===currentPage?"active":""}" onclick="goPage(${p})">${p}</button>`;
+  h+=`<button class="pbtn" onclick="goPage(${currentPage+1})" ${currentPage>=totalPages?"disabled":""}>›</button></div>`;
+  bar.innerHTML=h;
+}
+function pRange(c,t){
+  if(t<=7) return Array.from({length:t},(_,i)=>i+1);
+  const r=[1];if(c>3)r.push("...");
+  for(let i=Math.max(2,c-1);i<=Math.min(t-1,c+1);i++)r.push(i);
+  if(c<t-2)r.push("...");r.push(t);return r;
+}
+function goPage(p){
+  const t=Math.ceil(filtered.length/PAGE_SIZE);
+  if(p<1||p>t)return;
+  currentPage=p;renderTable();
+  document.getElementById("tableWrap")?.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
-async function act(action, key, extra, okMsg){
-  applyLocal(action, key, extra);   // đổi giao diện ngay
-  render();
-  toast(okMsg);
-  try{ await call(action, { key, ...(extra||{}) }); }
-  catch(e){ toast("Lỗi: "+e.message+" — đang đồng bộ lại", true); await loadAll(); }
+/* DROPDOWN */
+function toggleMenu(key,e){
+  e.stopPropagation();
+  const id="menu-"+key;
+  const isOpen=document.getElementById(id)?.classList.contains("open");
+  closeAllMenus();
+  if(!isOpen)document.getElementById(id)?.classList.add("open");
 }
-async function resetKey(key){
-  if(!confirm("Gỡ key khỏi máy hiện tại? Khách sẽ kích hoạt lại được trên máy mới.\n"+key)) return;
-  await act("reset", key, {}, "Đã reset máy cho key");
+function closeAllMenus(){document.querySelectorAll(".action-menu.open").forEach(m=>m.classList.remove("open"));}
+
+/* ACTIONS */
+function applyLocal(action,key,extra){
+  const i=DATA.findIndex(l=>l.license_key===key);if(i<0)return;
+  if(action==="delete"){DATA.splice(i,1);return;}
+  const l=DATA[i];
+  if(action==="set_status"){l.status=extra.status;}
+  else if(action==="extend"){const base=(l.expire_at&&new Date(l.expire_at)>new Date())?new Date(l.expire_at):new Date();l.expire_at=new Date(base.getTime()+extra.days*86400000).toISOString();l.status="active";}
+  else if(action==="reset"){l.hwid=null;l.activated_at=null;l.expire_at=null;}
 }
-async function delKey(key){
-  if(!confirm("Xóa hẳn key này? Không khôi phục được.\n"+key)) return;
-  await act("delete", key, {}, "Đã xóa key");
+async function act(action,key,extra,okMsg){
+  applyLocal(action,key,extra);updateStats();renderWarn();applyFilter();toast(okMsg,"ok");
+  try{await apicall(action,{key,...(extra||{})});}
+  catch(e){toast("Lỗi đồng bộ: "+e.message,"err");await loadAll();}
+}
+
+/* CONFIRM */
+function confirmAct(action,key){
+  const titles={reset:"Reset máy cho key",delete:"Xóa key này?"};
+  const bodies={reset:`Gỡ key khỏi máy, khách kích hoạt được trên máy mới.<br><code class="modal-key">${esc(key)}</code>`,delete:`Xóa vĩnh viễn, không khôi phục được!<br><code class="modal-key">${esc(key)}</code>`};
+  const cls={reset:"btn btn-warn",delete:"btn btn-danger"};
+  const msgs={reset:"Đã reset máy",delete:"Đã xóa key"};
+  document.getElementById("confirmTitle").textContent=titles[action]||"Xác nhận";
+  document.getElementById("confirmBody").innerHTML=bodies[action]||"";
+  const btn=document.getElementById("confirmOkBtn");
+  btn.className=cls[action]||"btn btn-primary";
+  btn.textContent=action==="delete"?"Xóa key":"Xác nhận";
+  btn.onclick=()=>{closeConfirm();act(action,key,{},msgs[action]||"Xong");};
+  document.getElementById("confirmModal").classList.add("open");
+}
+function closeConfirm(){document.getElementById("confirmModal").classList.remove("open");}
+
+/* EXTEND */
+function openExtend(key){
+  extendTarget=key;
+  document.getElementById("extendKeyDisplay").textContent=key;
+  document.getElementById("extendDays").value="30";
+  document.getElementById("extendModal").classList.add("open");
+}
+function closeExtend(){document.getElementById("extendModal").classList.remove("open");extendTarget=null;}
+function doExtend(){
+  if(!extendTarget)return;
+  const days=parseInt(document.getElementById("extendDays").value)||30;
+  act("extend",extendTarget,{days},`Đã gia hạn +${days} ngày`);
+  closeExtend();
+}
+
+/* GEN */
+async function genKeys(){
+  const count=Math.max(1,parseInt(document.getElementById("gCount").value)||1);
+  const days=Math.max(0,parseInt(document.getElementById("gDays").value)||0);
+  const name=document.getElementById("gName").value.trim();
+  const note=document.getElementById("gNote").value.trim();
+  const customer_name=[name,note].filter(Boolean).join(" — ");
+  const btn=document.getElementById("genBtn");
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Đang tạo...';
+  try{
+    const d=await apicall("gen",{count,days,customer_name});
+    const keys=d.keys||[];
+    document.getElementById("genKeysBox").value=keys.join("\n");
+    document.getElementById("genLabel").textContent=`✅ Đã tạo ${keys.length} key`;
+    document.getElementById("genResult").style.display="block";
+    toast(`Tạo thành công ${keys.length} key`,"ok");
+    await loadAll();
+  }catch(e){toast("Lỗi: "+e.message,"err");}
+  finally{btn.disabled=false;btn.innerHTML="✨ Tạo key";}
+}
+function copyAllKeys(){
+  const v=document.getElementById("genKeysBox").value;
+  navigator.clipboard.writeText(v).then(()=>toast("Đã copy tất cả key","ok")).catch(()=>{const b=document.getElementById("genKeysBox");b.select();document.execCommand("copy");toast("Đã copy","ok");});
+}
+function closeGenResult(){document.getElementById("genResult").style.display="none";document.getElementById("genKeysBox").value="";}
+
+/* COPY */
+function copyText(txt){
+  navigator.clipboard.writeText(txt).then(()=>toast("Đã copy key","ok")).catch(()=>{const t=document.createElement("textarea");t.value=txt;document.body.appendChild(t);t.select();document.execCommand("copy");document.body.removeChild(t);toast("Đã copy","ok");});
+}
+
+/* TOAST */
+function toast(msg,type){
+  const c=document.getElementById("toastCt");
+  const t=document.createElement("div");
+  t.className="toast"+(type==="err"?" err":type==="ok"?" ok":"");
+  t.innerHTML=`<span>${type==="err"?"❌":type==="ok"?"✅":"ℹ️"}</span><span>${esc(msg)}</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{t.style.opacity="0";t.style.transform="translateX(16px)";t.style.transition=".3s";setTimeout(()=>t.remove(),300);},3000);
+}
+
+/* UTILS */
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* DEMO */
+function loadDemo(){
+  const now=new Date(),d=o=>new Date(now.getTime()+o*86400000).toISOString();
+  DATA=[
+    {license_key:"DFK-A1B2C3D4E5F6G7H8J9KL",hwid:"a3f8c1e2b4d5f6a7",status:"active",expire_at:d(25),duration_days:30,customer_name:"Khách demo 1",activated_at:d(-5)},
+    {license_key:"DFK-M2N3P4Q5R6S7T8U9VWXY",hwid:"b4e9d2f3c5e6a7b8",status:"active",expire_at:d(3),duration_days:30,customer_name:"Sắp hết hạn - test",activated_at:d(-27)},
+    {license_key:"DFK-Z1Y2X3W4V5U6T7S8RQPN",hwid:null,status:"active",expire_at:null,duration_days:0,customer_name:"Key vĩnh viễn",activated_at:null},
+    {license_key:"DFK-K9J8H7G6F5E4D3C2BANM",hwid:"c5f0e3a4d6f7b8c9",status:"blocked",expire_at:d(10),duration_days:30,customer_name:"Khách bị chặn",activated_at:d(-20)},
+    {license_key:"DFK-L1M2N3O4P5Q6R7S8TUVW",hwid:"d6a1f4b5e7a8c9d0",status:"active",expire_at:d(-5),duration_days:30,customer_name:"Key đã hết hạn",activated_at:d(-35)},
+    {license_key:"DFK-E5F6G7H8J9K1L2M3NOPQ",hwid:null,status:"active",expire_at:null,duration_days:7,customer_name:"",activated_at:null},
+    {license_key:"DFK-R4S5T6U7V8W9X1Y2ZABC",hwid:null,status:"active",expire_at:null,duration_days:30,customer_name:"Chưa kích hoạt",activated_at:null},
+    {license_key:"DFK-D3E4F5G6H7J8K9L1MNPQ",hwid:"e7b2a5c6f8b9d0e1",status:"active",expire_at:d(60),duration_days:90,customer_name:"VIP 3 tháng",activated_at:d(-30)},
+    {license_key:"DFK-X9W8V7U6T5S4R3Q2PONM",hwid:"f8c3b6d7a9c0e2f3",status:"active",expire_at:d(1),duration_days:30,customer_name:"Cảnh báo 1 ngày",activated_at:d(-29)},
+  ];
+  SESS=[
+    {hwid:"a3f8c1e2b4d5f6a7",last_heartbeat:new Date(now.getTime()-30000).toISOString()},
+    {hwid:"e7b2a5c6f8b9d0e1",last_heartbeat:new Date(now.getTime()-15000).toISOString()},
+  ];
+  PASS="demo";
+  updateStats();renderWarn();applyFilter();
+  showDash();
+  setStatus(true,"Demo mode");
+  toast("Đang xem demo (dữ liệu giả)","ok");
 }
 </script>
 </body>
