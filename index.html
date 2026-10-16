@@ -226,6 +226,28 @@ td{padding:10px 13px;font-size:13px;vertical-align:middle}
 .empty{text-align:center;padding:50px 20px;color:var(--txt3)}
 .empty-icon{font-size:36px;margin-bottom:10px;opacity:.5}
 
+/* TOGGLE SWITCH */
+.sw{position:relative;width:40px;height:22px;flex:0 0 auto;cursor:pointer;display:inline-block;vertical-align:middle}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw .track{position:absolute;inset:0;background:#39404d;border-radius:999px;transition:.18s}
+.sw .thumb{position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.18s}
+.sw input:checked + .track{background:var(--green)}
+.sw input:checked + .track + .thumb{left:20px}
+.toggle-cell{display:flex;align-items:center;gap:6px}
+.toggle-cell small{font-size:11px;min-width:24px}
+.toggle-on{color:var(--green)}
+.toggle-off{color:var(--red)}
+
+/* PRESET BTNS */
+.preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.preset-btn{padding:7px 14px;font-size:12px}
+
+/* HWID STACK */
+.hwid-stack{display:flex;flex-direction:column;gap:2px}
+.hwid-stack .hwid-item{font-family:monospace;font-size:11px;color:var(--txt3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.hwid-more{font-size:11px;color:var(--purple);cursor:pointer}
+.hwid-count{font-size:11px;color:var(--txt3);margin-top:2px}
+
 /* HIDDEN */
 .hidden{display:none!important}
 
@@ -360,7 +382,21 @@ td{padding:10px 13px;font-size:13px;vertical-align:middle}
           <button class="btn btn-success btn-full" onclick="genKeys()" id="genBtn">✨ Tạo key</button>
         </div>
       </div>
-      <p class="muted" style="font-size:12px;margin-top:8px">💡 Số ngày tính từ lúc khách <b>kích hoạt</b>. Mỗi key chỉ dùng được trên <b>1 máy</b>.</p>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;align-items:center">
+        <div class="toggle-cell">
+          <label class="sw"><input type="checkbox" id="gHwidLock" checked><span class="track"></span><span class="thumb"></span></label>
+          <div><b style="font-size:13px">Khóa HWID</b><br><span class="muted" style="font-size:11px">Bật = gắn cứng 1 máy. Tắt = roam (khách net)</span></div>
+        </div>
+        <div class="toggle-cell">
+          <label class="sw"><input type="checkbox" id="gSharedKey"><span class="track"></span><span class="thumb"></span></label>
+          <div><b style="font-size:13px">Key dùng chung</b><br><span class="muted" style="font-size:11px">Bật = nhiều máy dùng chung 1 key (Free key)</span></div>
+        </div>
+      </div>
+      <div class="preset-row">
+        <button class="btn btn-ghost preset-btn" onclick="applyPreset('normal')">🎮 Key thường</button>
+        <button class="btn btn-ghost preset-btn" onclick="applyPreset('net')">🏪 Key net</button>
+        <button class="btn btn-ghost preset-btn" onclick="applyPreset('free')">🎁 Free key</button>
+      </div>
       <div class="gen-result" id="genResult">
         <div class="gen-result-bar">
           <span class="gen-result-label" id="genLabel">✅ Tạo thành công</span>
@@ -443,9 +479,17 @@ const FN = SB_URL + "/functions/v1/admin";
 const PAGE_SIZE = 25;
 
 /* STATE */
-let PASS="", DATA=[], SESS=[];
+let PASS="", DATA=[], SESS=[], ACTS=[];
 let filtered=[], currentPage=1, sortCol="license_key", sortAsc=true;
 let extendTarget=null;
+
+/* PRESETS */
+function applyPreset(type){
+  const hl=document.getElementById("gHwidLock"),sk=document.getElementById("gSharedKey");
+  if(type==="normal"){hl.checked=true;sk.checked=false;}
+  else if(type==="net"){hl.checked=false;sk.checked=false;}
+  else if(type==="free"){hl.checked=false;sk.checked=true;}
+}
 
 /* INIT */
 (function(){
@@ -499,7 +543,7 @@ function setStatus(on,txt){
 /* LOAD */
 async function loadAll(){
   const d=await apicall("list");
-  DATA=d.licenses||[]; SESS=d.sessions||[];
+  DATA=d.licenses||[]; SESS=d.sessions||[]; ACTS=d.activations||[];
   updateStats(); renderWarn(); applyFilter();
   toast("Đã cập nhật","ok");
 }
@@ -536,9 +580,10 @@ function renderWarn(){
   bar.style.display="block";
   document.getElementById("warnItems").innerHTML=soon.map(l=>{
     const days=Math.ceil((new Date(l.expire_at)-new Date())/86400000);
+    const name=(l.customer_name||"").split(" — ")[0]||"Không tên";
     return `<div class="warn-item">
+      <span style="font-weight:600">${esc(name)}</span>
       <span class="wi-key">${esc(l.license_key)}</span>
-      <span>${l.customer_name?esc(l.customer_name):"—"}</span>
       <b>còn ${days} ngày</b>
       <button class="btn btn-warn btn-sm" onclick="openExtend('${esc(l.license_key)}')">Gia hạn</button>
     </div>`;
@@ -589,46 +634,77 @@ function renderTable(){
   const sa=col=>sortCol===col?"sorted":"", ar=col=>sortCol===col?(sortAsc?"↑":"↓"):"↕";
 
   let h=`<table><thead><tr>
+    <th class="${sa("customer_name")}" onclick="setSort('customer_name')">Tên khách ${ar("customer_name")}</th>
     <th class="${sa("license_key")}" onclick="setSort('license_key')">Key ${ar("license_key")}</th>
-    <th class="${sa("customer_name")}" onclick="setSort('customer_name')">Tên khách hàng ${ar("customer_name")}</th>
-    <th>Trạng thái</th>
-    <th class="${sa("expire_at")}" onclick="setSort('expire_at')">Hết hạn ${ar("expire_at")}</th>
-    <th>Online</th>
+    <th>HWID</th>
+    <th>Khóa HWID</th>
+    <th>Key dùng chung</th>
+    <th class="${sa("expire_at")}" onclick="setSort('expire_at')">HSD ${ar("expire_at")}</th>
     <th style="text-align:right">Thao tác</th>
   </tr></thead><tbody>`;
 
   for(const l of rows){
     const st=effStatus(l);
     const badge={active:'<span class="badge b-active">Đang chạy</span>',blocked:'<span class="badge b-blocked">Bị chặn</span>',expired:'<span class="badge b-expired">Hết hạn</span>',unused:'<span class="badge b-unused">Chưa dùng</span>'}[st]||"";
+
+    // HSD — hiển thị đến phút
     let exp="—";
     if(l.expire_at){
-      const d=new Date(l.expire_at),days=Math.ceil((d-new Date())/86400000),lbl=d.toLocaleDateString("vi-VN");
+      const d=new Date(l.expire_at);
+      const lbl=d.toLocaleDateString("vi-VN")+' '+d.toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"});
+      const days=Math.ceil((d-new Date())/86400000);
       if(days<0) exp=`<span class="exp-over">${lbl} <small>(quá ${-days} ngày)</small></span>`;
       else if(days<=5) exp=`<span class="exp-warn">${lbl} <small>(còn ${days} ngày)</small></span>`;
       else exp=`${lbl} <small class="muted">(còn ${days} ngày)</small>`;
-    } else if(l.duration_days){ exp=`<span class="muted">${l.duration_days} ngày khi KH</span>`; }
+    } else if(!l.activated_at && l.duration_days){ exp='<span class="muted">Chưa kích hoạt</span>'; }
     else { exp='<span class="muted">Vĩnh viễn</span>'; }
-    const isOn=l.hwid&&online.has(l.hwid);
-    const onHtml=isOn?'<span class="online-on"><span class="pulse"></span>Online</span>':'<span class="online-off">—</span>';
+
+    // HWID — hiển thị tất cả HWID cho shared key
+    const keyActs=ACTS.filter(a=>a.license_id===l.id);
+    let hwidCell='<span class="muted">—</span>';
+    if(l.shared_key || !l.hwid_lock){
+      if(keyActs.length>0){
+        const show=keyActs.slice(0,3);
+        let stack='<div class="hwid-stack">';
+        for(const a of show) stack+=`<div class="hwid-item" title="${esc(a.hwid)}">${esc(a.hwid)}</div>`;
+        if(keyActs.length>3) stack+=`<div class="hwid-more">▸ +${keyActs.length-3} máy khác…</div>`;
+        stack+=`<div class="hwid-count">${keyActs.length} máy</div></div>`;
+        hwidCell=stack;
+      } else {
+        hwidCell='<span class="muted" style="font-style:italic">— chưa có máy nào —</span>';
+      }
+    } else if(l.hwid){
+      hwidCell=`<div class="td-hwid" title="${esc(l.hwid)}">${esc(l.hwid)}</div>`;
+    }
+
+    // Toggle cells
+    const hlOn=l.hwid_lock!==false;
+    const skOn=l.shared_key===true;
+    const hlCell=`<div class="toggle-cell"><label class="sw"><input type="checkbox" ${hlOn?"checked":""} onchange="toggleField('${esc(l.license_key)}','hwid_lock',this.checked)"><span class="track"></span><span class="thumb"></span></label><small class="${hlOn?"toggle-on":"toggle-off"}">${hlOn?"Bật":"Tắt"}</small></div>`;
+    const skCell=`<div class="toggle-cell"><label class="sw"><input type="checkbox" ${skOn?"checked":""} onchange="toggleField('${esc(l.license_key)}','shared_key',this.checked)"><span class="track"></span><span class="thumb"></span></label><small class="${skOn?"toggle-on":"toggle-off"}">${skOn?"Bật":"Tắt"}</small></div>`;
+
     const k=esc(l.license_key);
-    // tách tên và ghi chú từ customer_name (định dạng "Tên — Ghi chú")
     const parts=(l.customer_name||"").split(" — ");
     const tenKH=parts[0]||"";
     const ghiChu=parts.slice(1).join(" — ");
     const nameCell=tenKH?`<div style="font-weight:600">${esc(tenKH)}</div>`:'<span class="muted">—</span>';
     const noteCell=ghiChu?`<div class="td-note">${esc(ghiChu)}</div>`:"";
+
+    const isOn=l.hwid&&online.has(l.hwid);
+    const onDot=isOn?` <span class="pulse" style="display:inline-block;width:6px;height:6px" title="Online"></span>`:"";
+
     h+=`<tr>
+      <td>${nameCell}${noteCell}${badge}${onDot}</td>
       <td>
         <div style="display:flex;align-items:center;gap:5px">
           <span class="td-key">${esc(l.license_key)}</span>
           <button class="copy-btn" onclick="copyText('${k}')" title="Copy">📋</button>
         </div>
-        ${l.hwid?`<div class="td-hwid" title="${esc(l.hwid)}">${esc(l.hwid)}</div>`:""}
       </td>
-      <td>${nameCell}${noteCell}</td>
-      <td>${badge}</td>
+      <td>${hwidCell}</td>
+      <td>${hlCell}</td>
+      <td>${skCell}</td>
       <td>${exp}</td>
-      <td>${onHtml}</td>
       <td style="text-align:right">
         <div class="action-wrap">
           <button class="btn btn-ghost btn-sm" onclick="toggleMenu('${k}',event)">⋯</button>
@@ -693,8 +769,18 @@ function applyLocal(action,key,extra){
   if(action==="delete"){DATA.splice(i,1);return;}
   const l=DATA[i];
   if(action==="set_status"){l.status=extra.status;}
+  else if(action==="set_toggles"){if(extra.hwid_lock!==undefined)l.hwid_lock=extra.hwid_lock;if(extra.shared_key!==undefined)l.shared_key=extra.shared_key;}
   else if(action==="extend"){const base=(l.expire_at&&new Date(l.expire_at)>new Date())?new Date(l.expire_at):new Date();l.expire_at=new Date(base.getTime()+extra.days*86400000).toISOString();l.status="active";}
   else if(action==="reset"){l.hwid=null;l.activated_at=null;l.expire_at=null;}
+}
+
+/* TOGGLE FIELD (inline on table) */
+async function toggleField(key,field,val){
+  const extra={};extra[field]=val;
+  applyLocal("set_toggles",key,extra);updateStats();applyFilter();
+  toast(`${field==="hwid_lock"?"Khóa HWID":"Key dùng chung"}: ${val?"Bật":"Tắt"}`,"ok");
+  try{await apicall("set_toggles",{key,...extra});}
+  catch(e){toast("Lỗi đồng bộ: "+e.message,"err");await loadAll();}
 }
 async function act(action,key,extra,okMsg){
   applyLocal(action,key,extra);updateStats();renderWarn();applyFilter();toast(okMsg,"ok");
@@ -743,7 +829,9 @@ async function genKeys(){
   const btn=document.getElementById("genBtn");
   btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Đang tạo...';
   try{
-    const d=await apicall("gen",{count,days,customer_name});
+    const hwid_lock=document.getElementById("gHwidLock").checked;
+    const shared_key=document.getElementById("gSharedKey").checked;
+    const d=await apicall("gen",{count,days,customer_name,hwid_lock,shared_key});
     const keys=d.keys||[];
     document.getElementById("genKeysBox").value=keys.join("\n");
     document.getElementById("genLabel").textContent=`✅ Đã tạo ${keys.length} key`;
@@ -781,19 +869,28 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function loadDemo(){
   const now=new Date(),d=o=>new Date(now.getTime()+o*86400000).toISOString();
   DATA=[
-    {license_key:"DFK-A1B2C3D4E5F6G7H8J9KL",hwid:"a3f8c1e2b4d5f6a7",status:"active",expire_at:d(25),duration_days:30,customer_name:"Khách demo 1",activated_at:d(-5)},
-    {license_key:"DFK-M2N3P4Q5R6S7T8U9VWXY",hwid:"b4e9d2f3c5e6a7b8",status:"active",expire_at:d(3),duration_days:30,customer_name:"Sắp hết hạn - test",activated_at:d(-27)},
-    {license_key:"DFK-Z1Y2X3W4V5U6T7S8RQPN",hwid:null,status:"active",expire_at:null,duration_days:0,customer_name:"Key vĩnh viễn",activated_at:null},
-    {license_key:"DFK-K9J8H7G6F5E4D3C2BANM",hwid:"c5f0e3a4d6f7b8c9",status:"blocked",expire_at:d(10),duration_days:30,customer_name:"Khách bị chặn",activated_at:d(-20)},
-    {license_key:"DFK-L1M2N3O4P5Q6R7S8TUVW",hwid:"d6a1f4b5e7a8c9d0",status:"active",expire_at:d(-5),duration_days:30,customer_name:"Key đã hết hạn",activated_at:d(-35)},
-    {license_key:"DFK-E5F6G7H8J9K1L2M3NOPQ",hwid:null,status:"active",expire_at:null,duration_days:7,customer_name:"",activated_at:null},
-    {license_key:"DFK-R4S5T6U7V8W9X1Y2ZABC",hwid:null,status:"active",expire_at:null,duration_days:30,customer_name:"Chưa kích hoạt",activated_at:null},
-    {license_key:"DFK-D3E4F5G6H7J8K9L1MNPQ",hwid:"e7b2a5c6f8b9d0e1",status:"active",expire_at:d(60),duration_days:90,customer_name:"VIP 3 tháng",activated_at:d(-30)},
-    {license_key:"DFK-X9W8V7U6T5S4R3Q2PONM",hwid:"f8c3b6d7a9c0e2f3",status:"active",expire_at:d(1),duration_days:30,customer_name:"Cảnh báo 1 ngày",activated_at:d(-29)},
+    {id:1,license_key:"DFK-A1B2C3D4E5F6G7H8J9KL",hwid:"a3f8c1e2b4d5f6a7",status:"active",expire_at:d(25),duration_days:30,customer_name:"Nguyễn Văn A",activated_at:d(-5),hwid_lock:true,shared_key:false},
+    {id:2,license_key:"DFK-M2N3P4Q5R6S7T8U9VWXY",hwid:"b4e9d2f3c5e6a7b8",status:"active",expire_at:d(3),duration_days:30,customer_name:"Trần Minh B — sắp hết hạn",activated_at:d(-27),hwid_lock:true,shared_key:false},
+    {id:3,license_key:"DFK-NET1-HB12-ROAM-5500",hwid:null,status:"active",expire_at:d(25),duration_days:30,customer_name:"Net Hòa Bình — VIP",activated_at:d(-5),hwid_lock:false,shared_key:false},
+    {id:4,license_key:"DFK-FREE-1116-OPEN-DAY1",hwid:null,status:"active",expire_at:d(1),duration_days:2,customer_name:"🎁 Free key 16/11",activated_at:d(-1),hwid_lock:false,shared_key:true},
+    {id:5,license_key:"DFK-K9J8H7G6F5E4D3C2BANM",hwid:"c5f0e3a4d6f7b8c9",status:"blocked",expire_at:d(10),duration_days:30,customer_name:"Khách bị chặn",activated_at:d(-20),hwid_lock:true,shared_key:false},
+    {id:6,license_key:"DFK-L1M2N3O4P5Q6R7S8TUVW",hwid:"d6a1f4b5e7a8c9d0",status:"active",expire_at:d(-5),duration_days:30,customer_name:"Lê Văn C — hết hạn",activated_at:d(-35),hwid_lock:true,shared_key:false},
+    {id:7,license_key:"DFK-R4S5T6U7V8W9X1Y2ZABC",hwid:null,status:"active",expire_at:null,duration_days:30,customer_name:"Chưa kích hoạt",activated_at:null,hwid_lock:true,shared_key:false},
+    {id:8,license_key:"DFK-D3E4F5G6H7J8K9L1MNPQ",hwid:"e7b2a5c6f8b9d0e1",status:"active",expire_at:d(60),duration_days:90,customer_name:"VIP 3 tháng",activated_at:d(-30),hwid_lock:true,shared_key:false},
+    {id:9,license_key:"DFK-X9W8V7U6T5S4R3Q2PONM",hwid:"f8c3b6d7a9c0e2f3",status:"active",expire_at:d(1),duration_days:30,customer_name:"Cảnh báo 1 ngày",activated_at:d(-29),hwid_lock:true,shared_key:false},
   ];
   SESS=[
     {hwid:"a3f8c1e2b4d5f6a7",last_heartbeat:new Date(now.getTime()-30000).toISOString()},
     {hwid:"e7b2a5c6f8b9d0e1",last_heartbeat:new Date(now.getTime()-15000).toISOString()},
+  ];
+  ACTS=[
+    {license_id:3,hwid:"aa11bb22cc33dd44",activated_at:d(-3)},
+    {license_id:3,hwid:"ee55ff66aa77bb88",activated_at:d(-2)},
+    {license_id:4,hwid:"a3f9c2b8d1e04f7a",activated_at:d(-1)},
+    {license_id:4,hwid:"7b21e0cc84a9f301",activated_at:d(-1)},
+    {license_id:4,hwid:"f40d9a17c3b8e256",activated_at:d(0)},
+    {license_id:4,hwid:"1122334455667788",activated_at:d(0)},
+    {license_id:4,hwid:"99aabbccddeeff00",activated_at:d(0)},
   ];
   PASS="demo";
   updateStats();renderWarn();applyFilter();
